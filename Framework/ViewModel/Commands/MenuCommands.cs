@@ -480,6 +480,41 @@ namespace Framework.ViewModel
         }
         #endregion
 
+        #region binaryImage
+        private ICommand _binaryImageCommand;
+        public ICommand BinaryImageCommand
+        {
+            get
+            {
+                if (_binaryImageCommand == null)
+                    _binaryImageCommand = new RelayCommand(BinaryImage);
+                return _invertImageCommand;
+            }
+        }
+
+        private void BinaryImage(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Tools.Invert(GrayInitialImage);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else if (ColorInitialImage != null)
+            {
+                ColorProcessedImage = Tools.Invert(ColorInitialImage);
+                ProcessedImage = Convert(ColorProcessedImage);
+            }
+        }
+        #endregion
+
         #region Invert image
         private ICommand _invertImageCommand;
         public ICommand InvertImageCommand
@@ -504,6 +539,13 @@ namespace Framework.ViewModel
 
             if (GrayInitialImage != null)
             {
+                List<string> label = new List<string>
+                {
+                    "Threshhold (0-255)"
+                };
+
+                DialogWindow dialog = new DialogWindow(_mainVM, label);
+                dialog.ShowDialog();
                 GrayProcessedImage = Tools.Invert(GrayInitialImage);
                 ProcessedImage = Convert(GrayProcessedImage);
             }
@@ -513,6 +555,10 @@ namespace Framework.ViewModel
                 ProcessedImage = Convert(ColorProcessedImage);
             }
         }
+        #endregion
+
+        #region BinaryImage
+
         #endregion
 
         #region Convert color image to grayscale image
