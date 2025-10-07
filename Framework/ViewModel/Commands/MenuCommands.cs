@@ -18,13 +18,15 @@ using static Framework.Converters.ImageConverter;
 using Algorithms.Sections;
 using Algorithms.Tools;
 using Algorithms.Utilities;
+using System;
+using System.Drawing;
 
 namespace Framework.ViewModel
 {
     public class MenuCommands : BaseVM
     {
         private readonly MainVM _mainVM;
-
+        private List<System.Windows.Point> VectorOfMousePosition = new List<System.Windows.Point>();
         public MenuCommands(MainVM mainVM)
         {
             _mainVM = mainVM;
@@ -488,7 +490,7 @@ namespace Framework.ViewModel
             {
                 if (_binaryImageCommand == null)
                     _binaryImageCommand = new RelayCommand(BinaryImage);
-                return _invertImageCommand;
+                return _binaryImageCommand;
             }
         }
 
@@ -500,19 +502,270 @@ namespace Framework.ViewModel
                 return;
             }
 
-            ClearProcessedCanvas(parameter as Canvas);
+            ClearProcessedCanvas(parameter);
+
+            List<string> parameters = new List<string>()
+            {
+                "Threshhold (0-255)",
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, parameters);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+            double threshold = values[0] + 0.5;
+            threshold = Math.Min(255, Math.Max(0, threshold));
+
 
             if (GrayInitialImage != null)
             {
-                GrayProcessedImage = Tools.Invert(GrayInitialImage);
+                GrayProcessedImage = Tools.Binary(GrayInitialImage, (byte)threshold);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else //if (ColorInitialImage != null)
+            {
+                GrayProcessedImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Tools.Binary(GrayProcessedImage,
+               (byte)threshold);
+                ProcessedImage = Convert(GrayProcessedImage);
+
+            }
+        }
+        #endregion
+
+        #region Rotate Clockwise
+        private ICommand _rotateClockwiseCommand;
+        public ICommand RotateClockwiseCommand
+        {
+            get
+            {
+                if (_rotateClockwiseCommand == null)
+                    _rotateClockwiseCommand = new RelayCommand(RotateClockwise);
+                return _rotateClockwiseCommand;
+            }
+        }
+
+        private void RotateClockwise(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first.");
+                return;
+            }
+
+            var canvas = parameter as Canvas;
+            if (canvas != null)
+            {
+                ClearProcessedCanvas(canvas);
+            }
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Tools.RotateClockwise(GrayInitialImage);
                 ProcessedImage = Convert(GrayProcessedImage);
             }
             else if (ColorInitialImage != null)
             {
-                ColorProcessedImage = Tools.Invert(ColorInitialImage);
+                ColorProcessedImage = Tools.RotateClockwise(ColorInitialImage);
                 ProcessedImage = Convert(ColorProcessedImage);
             }
         }
+
+        #endregion
+
+        #region Rotate Anti-Clockwise
+        private ICommand _rotateAntiClockwiseCommand;
+        public ICommand RotateAntiClockwiseCommand
+        {
+            get
+            {
+                if (_rotateAntiClockwiseCommand == null)
+                    _rotateAntiClockwiseCommand = new RelayCommand(RotateAntiClockwise);
+                return _rotateAntiClockwiseCommand;
+            }
+        }
+
+        private void RotateAntiClockwise(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first.");
+                return;
+            }
+
+            var canvas = parameter as Canvas;
+            if (canvas != null)
+            {
+                ClearProcessedCanvas(canvas);
+            }
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Tools.RotateAntiClockwise(GrayInitialImage);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else if (ColorInitialImage != null)
+            {
+                ColorProcessedImage = Tools.RotateAntiClockwise(ColorInitialImage);
+                ProcessedImage = Convert(ColorProcessedImage);
+            }
+        }
+        #endregion
+
+
+        #region Mirroring
+        private ICommand _mirrorImageCommand;
+        public ICommand MirrorImageCommand
+        {
+            get
+            {
+                if (_mirrorImageCommand == null)
+                    _mirrorImageCommand = new RelayCommand(MirrorImage);
+                return _mirrorImageCommand;
+            }
+        }
+
+        private void MirrorImage(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first.");
+                return;
+            }
+
+            // Verifică dacă parameter este Canvas valid
+            var canvas = parameter as Canvas;
+            if (canvas != null)
+            {
+                ClearProcessedCanvas(canvas);
+            }
+            else
+            {
+                // Poți ignora sau afișa un mesaj, dar nu apela ClearProcessedCanvas(null)
+                // MessageBox.Show("Canvas is null. Skipping canvas clearing.");
+            }
+
+            try
+            {
+                if (GrayInitialImage != null)
+                {
+                    var mirrored = Tools.Mirror(GrayInitialImage);
+                    if (mirrored == null)
+                        throw new Exception("Mirroring failed for grayscale image.");
+                    GrayProcessedImage = mirrored;
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                else if (ColorInitialImage != null)
+                {
+                    var mirrored = Tools.Mirror(ColorInitialImage);
+                    if (mirrored == null)
+                        throw new Exception("Mirroring failed for color image.");
+                    ColorProcessedImage = mirrored;
+                    ProcessedImage = Convert(ColorProcessedImage);
+                }
+                else
+                {
+                    MessageBox.Show("No valid image to mirror.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error during mirroring: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region Crop
+        private ICommand _cropCommand;
+        public ICommand CropCommand
+        {
+            get
+            {
+                if (_cropCommand == null)
+                    _cropCommand = new RelayCommand(Crop);
+                return _cropCommand;
+            }
+        }
+
+        private System.Windows.Point _firstPoint;
+        private System.Windows.Point _secondPoint;
+        private bool _isFirstPointSelected = false;
+
+
+        private void Crop(object parameter)
+        {
+            _mainVM.IsCropMode = true;
+            VectorOfMousePosition.Clear();
+            MessageBox.Show("Crop mode activated. Please select two points on the image.");
+        }
+
+        public void PerformCrop(Canvas canvas)
+        {
+
+            if (VectorOfMousePosition.Count >= 2)
+            {
+
+                var p1 = VectorOfMousePosition[0];
+                var p2 = VectorOfMousePosition[1];
+
+
+                var topLeft = new System.Windows.Point(
+                    Math.Min(p1.X, p2.X),
+                    Math.Min(p1.Y, p2.Y)
+                );
+
+                var bottomRight = new System.Windows.Point(
+                    Math.Max(p1.X, p2.X),
+                    Math.Max(p1.Y, p2.Y)
+                );
+
+
+                double zoom = _mainVM.ScaleValue;
+
+                DrawRectangle(canvas, topLeft, bottomRight, 2, System.Windows.Media.Brushes.Red, zoom);
+
+                try
+                {
+                    if (GrayInitialImage != null)
+                    {
+                        var p1Drawing = new System.Drawing.Point((int)p1.X, (int)p1.Y);
+                        var p2Drawing = new System.Drawing.Point((int)p2.X, (int)p2.Y);
+                        GrayProcessedImage = Tools.Crop(GrayInitialImage, p1Drawing, p2Drawing, zoom);
+                        ProcessedImage = Convert(GrayProcessedImage);
+
+                        var stats = Tools.CalculateStatistics(GrayProcessedImage);
+                        MessageBox.Show($"Mean: {stats.mean:F2}\nStandard Deviation: {stats.standardDeviation:F2}", "Cropped Area Statistics");
+                    }
+                    else if (ColorInitialImage != null)
+                    {
+                        var p1Drawing = new System.Drawing.Point((int)p1.X, (int)p1.Y);
+                        var p2Drawing = new System.Drawing.Point((int)p2.X, (int)p2.Y);
+                        ColorProcessedImage = Tools.Crop(ColorInitialImage, p1Drawing, p2Drawing, zoom);
+                        ProcessedImage = Convert(ColorProcessedImage);
+
+                        var grayImage = ColorProcessedImage.Convert<Gray, byte>();
+                        var stats = Tools.CalculateStatistics(grayImage);
+                        MessageBox.Show($"Mean: {stats.mean:F2}\nStandard Deviation: {stats.standardDeviation:F2}", "Cropped Area Statistics");
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                _mainVM.IsCropMode = false;
+
+                VectorOfMousePosition.Clear();
+            }
+
+
+        }
+
+
+
+
+
+
         #endregion
 
         #region Invert image
@@ -557,9 +810,6 @@ namespace Framework.ViewModel
         }
         #endregion
 
-        #region BinaryImage
-
-        #endregion
 
         #region Convert color image to grayscale image
         private ICommand _convertImageToGrayscaleCommand;

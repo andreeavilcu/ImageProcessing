@@ -71,13 +71,13 @@ namespace Framework.ViewModel
 
                 if (_initialImage != null)
                 {
-                    InitialCanvasWidth = InitialImage.Width * ScaleValue;
-                    InitialCanvasHeight = InitialImage.Height * ScaleValue;
+                    OriginalCanvasWidth = InitialImage.Width * ScaleValue;
+                    OriginalCanvasHeight = InitialImage.Height * ScaleValue;
                 }
                 else
                 {
-                    InitialCanvasWidth = 0;
-                    InitialCanvasHeight = 0;
+                    OriginalCanvasWidth = 0;
+                    OriginalCanvasHeight = 0;
                 }
 
                 NotifyPropertyChanged(nameof(InitialImage));
@@ -110,53 +110,17 @@ namespace Framework.ViewModel
             }
         }
 
-        #region Canvases properties
-        public double _initialCanvasWidth;
-        public double InitialCanvasWidth
+        private double _scaleValue;
+        public double ScaleValue
         {
-            get => _initialCanvasWidth;
+            get => _scaleValue;
             set
             {
-                _initialCanvasWidth = value;
-                NotifyPropertyChanged(nameof(InitialCanvasWidth));
+                _scaleValue = value;
+                NotifyPropertyChanged(nameof(ScaleValue));
             }
         }
 
-        public double _initialCanvasHeight;
-        public double InitialCanvasHeight
-        {
-            get => _initialCanvasHeight;
-            set
-            {
-                _initialCanvasHeight = value;
-                NotifyPropertyChanged(nameof(InitialCanvasHeight));
-            }
-        }
-
-        public double _processedCanvasWidth;
-        public double ProcessedCanvasWidth
-        {
-            get => _processedCanvasWidth;
-            set
-            {
-                _processedCanvasWidth = value;
-                NotifyPropertyChanged(nameof(ProcessedCanvasWidth));
-            }
-        }
-
-        public double _processedCanvasHeight;
-        public double ProcessedCanvasHeight
-        {
-            get => _processedCanvasHeight;
-            set
-            {
-                _processedCanvasHeight = value;
-                NotifyPropertyChanged(nameof(ProcessedCanvasHeight));
-            }
-        }
-        #endregion
-
-        #region Pixel properties
         private string _xPos;
         public string XPos
         {
@@ -222,20 +186,17 @@ namespace Framework.ViewModel
                 NotifyPropertyChanged(nameof(BlueValue));
             }
         }
-        #endregion
-
-        #region Scale property and reset command
-        private double _scaleValue;
-        public double ScaleValue
+        private bool _isCropMode = false;
+        public bool IsCropMode
         {
-            get => _scaleValue;
+            get => _isCropMode;
             set
             {
-                _scaleValue = value;
-                NotifyPropertyChanged(nameof(ScaleValue));
+                _isCropMode = value;
+                NotifyPropertyChanged(nameof(IsCropMode));
             }
         }
-
+        #region Reset zoom
         private ICommand _resetZoomCommand;
         public ICommand ResetZoomCommand
         {
@@ -251,6 +212,74 @@ namespace Framework.ViewModel
         public void ResetZoom(object parameter)
         {
             ScaleValue = 1;
+        }
+        #endregion
+
+        #region Canvases properties
+        public double _originalCanvasWidth;
+        public double OriginalCanvasWidth
+        {
+            get => _originalCanvasWidth;
+            set
+            {
+                _originalCanvasWidth = value;
+                NotifyPropertyChanged(nameof(OriginalCanvasWidth));
+            }
+        }
+
+        private double _initialCanvasHeight;
+        public double InitialCanvasHeight
+        {
+            get => _initialCanvasHeight;
+            set
+            {
+                _initialCanvasHeight = value;
+                NotifyPropertyChanged(nameof(InitialCanvasHeight));
+            }
+        }
+
+        private double _initialCanvasWidth;
+        public double InitialCanvasWidth
+        {
+            get => _initialCanvasWidth;
+            set
+            {
+                _initialCanvasWidth = value;
+                NotifyPropertyChanged(nameof(InitialCanvasWidth));
+            }
+        }
+
+        public double _originalCanvasHeight;
+        public double OriginalCanvasHeight
+        {
+            get => _originalCanvasHeight;
+            set
+            {
+                _originalCanvasHeight = value;
+                NotifyPropertyChanged(nameof(OriginalCanvasHeight));
+            }
+        }
+
+        public double _processedCanvasWidth;
+        public double ProcessedCanvasWidth
+        {
+            get => _processedCanvasWidth;
+            set
+            {
+                _processedCanvasWidth = value;
+                NotifyPropertyChanged(nameof(ProcessedCanvasWidth));
+            }
+        }
+
+        public double _processedCanvasHeight;
+        public double ProcessedCanvasHeight
+        {
+            get => _processedCanvasHeight;
+            set
+            {
+                _processedCanvasHeight = value;
+                NotifyPropertyChanged(nameof(ProcessedCanvasHeight));
+            }
         }
         #endregion
     }
