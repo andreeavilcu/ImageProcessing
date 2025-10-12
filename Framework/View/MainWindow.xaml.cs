@@ -84,21 +84,42 @@ namespace Framework.View
         {
             var position = LastMouseClick;
 
-            if (sender == initialImage)
-                position = e.GetPosition(initialImage);
-            else if (sender == processedImage)
-                position = e.GetPosition(processedImage);
-
-            if (LastMouseClick != position)
+            if (_mainVM.IsCropMode)
             {
-                MouseClickCollection.Add(position);
-                LastMouseClick = position;
+                if (sender == initialImage)
+                {
+                    _mainVM.MenuCommands.VectorOfMousePosition.Add(position);
+
+                    if (_mainVM.MenuCommands.VectorOfMousePosition.Count == 2)
+                    {
+                        Canvas canvas = initialImageCanvas;
+                        _mainVM.MenuCommands.PerformCrop(canvas);
+
+                    }
+                }
+
             }
+            else
+            {
+                if (sender == initialImage)
+                    position = e.GetPosition(initialImage);
+                else if (sender == processedImage)
+                    position = e.GetPosition(processedImage);
+
+                if (LastMouseClick != position)
+                {
+                    MouseClickCollection.Add(position);
+                    LastMouseClick = position;
+                }
+            }
+
+            
         }
 
         private void ImageMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            MouseClickCollection.Clear();
+            _mainVM.MenuCommands.VectorOfMousePosition.Clear();
+
         }
 
         private void CanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -72,6 +72,8 @@ namespace Algorithms.Tools
                 {
                     if (inputImage.Data[y, x, 0] > threshold)
                         result.Data[y, x, 0] = 255;
+                    else
+                        result.Data[y, x, 0] = 0;
                 }
             }
             return result;

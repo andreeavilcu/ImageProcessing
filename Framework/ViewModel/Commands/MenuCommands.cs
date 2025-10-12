@@ -26,10 +26,11 @@ namespace Framework.ViewModel
     public class MenuCommands : BaseVM
     {
         private readonly MainVM _mainVM;
-        private List<System.Windows.Point> VectorOfMousePosition = new List<System.Windows.Point>();
+        public List<System.Windows.Point> VectorOfMousePosition = new List<System.Windows.Point>();
         public MenuCommands(MainVM mainVM)
         {
             _mainVM = mainVM;
+            VectorOfMousePosition = new List<System.Windows.Point>();
         }
 
         private ImageSource InitialImage
@@ -304,15 +305,16 @@ namespace Framework.ViewModel
         private void Magnifier(object parameter)
         {
             if (MagnifierOn == true) return;
-            if (MouseClickCollection.Count == 0)
+            if (VectorOfMousePosition.Count == 0)
             {
-                MessageBox.Show("Please select an area first!");
+                MessageBox.Show("Please select an area first.");
                 return;
             }
 
             MagnifierWindow magnifierWindow = new MagnifierWindow();
             magnifierWindow.Show();
         }
+
         #endregion
 
         #region Visualize color levels
