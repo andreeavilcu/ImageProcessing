@@ -23,7 +23,6 @@ namespace Algorithms.Sections
                 for (int x = 0; x < inputImage.Width; x++)
                    
                     {
-                        byte intensity = inputImage.Data[y, x, 0];
                         result.Data[y, x, 0] = LUT[inputImage.Data[y, x, 0]];
                     }
 
@@ -49,9 +48,6 @@ namespace Algorithms.Sections
             {
                 for (int x = 0; x < inputImage.Width; x++)
                 {
-
-
-                    byte intensity = inputImage.Data[y, x, 0];
                     result.Data[y, x, 0] = LUT[inputImage.Data[y, x, 0]];
                     result.Data[y, x, 1] = LUT[inputImage.Data[y, x, 1]];
                     result.Data[y, x, 2] = LUT[inputImage.Data[y, x, 2]];
@@ -88,11 +84,11 @@ namespace Algorithms.Sections
             {
                 for (int x = 0; x < inputImage.Width; x++)
                 {
-                    for (int cIdx = 0; cIdx < 3; cIdx++) 
-                    {
-                        byte intensity = inputImage.Data[y, x, cIdx];
-                        result.Data[y, x, cIdx] = LUT[intensity];
-                    }
+                    
+                   result.Data[y, x, 0] = LUT[inputImage.Data[y, x, 0]];
+                   result.Data[y, x, 1] = LUT[inputImage.Data[y, x, 1]];
+                   result.Data[y, x, 2] = LUT[inputImage.Data[y, x, 2]];
+
                 }
             }
 
@@ -132,11 +128,71 @@ namespace Algorithms.Sections
 
             return result;
         }
-        
-
 
 
         #endregion
+
+        #region Normalized histogram
+       
+
+        public static float[] ComputeNormalizedHistogram(Image<Gray, byte> inputImage)
+        {
+            float[] histogram = new float[256];
+
+            for (int y = 0; y < inputImage.Height; y++)
+            {
+                for (int x = 0; x < inputImage.Width; x++)
+                {
+                    byte intensity = inputImage.Data[y, x, 0];
+                    histogram[intensity]++;
+                }
+            }
+
+            float totalPixels = inputImage.Width * inputImage.Height;
+
+           
+            for (int i = 0; i < 256; i++)
+            {
+                histogram[i] /= totalPixels;
+            }
+
+            return histogram;
+        }
+
+
+        public static float[][] ComputeNormalizedHistogram(Image<Bgr, byte> inputImage)
+        {
+            float[][] histograms = new float[3][];
+            histograms[0] = new float[256]; 
+            histograms[1] = new float[256]; 
+            histograms[2] = new float[256]; 
+
+            for (int y = 0; y < inputImage.Height; y++)
+            {
+                for (int x = 0; x < inputImage.Width; x++)
+                {
+                    histograms[0][inputImage.Data[y, x, 0]]++;
+                    histograms[1][inputImage.Data[y, x, 1]]++;
+                    histograms[2][inputImage.Data[y, x, 2]]++;
+                }
+            }
+
+            float totalPixels = inputImage.Width * inputImage.Height;
+
+            for (int c = 0; c < 3; c++)
+            {
+                for (int i = 0; i < 256; i++)
+                {
+                    histograms[c][i] /= totalPixels;
+                }
+            }
+
+            return histograms;
+        }
+
+        #endregion
+
+        
 
     }
 }

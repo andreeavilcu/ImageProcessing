@@ -851,6 +851,9 @@ namespace Framework.ViewModel
 
         #endregion
 
+
+        #region Pointwise operations
+
         #region Contrast and Brightness
 
         private ICommand _contrastAndBrightnessCommand;
@@ -915,15 +918,15 @@ namespace Framework.ViewModel
         #endregion
 
         #region Gamma
-        private ICommand _gammaBrightnessCommand;
+        private ICommand _gammaOperatorCommand;
 
-        public ICommand GammaBrightnessCommand
+        public ICommand GammaOperatorCommand
         {
             get
             {
-                if (_gammaBrightnessCommand == null)
-                    _gammaBrightnessCommand = new RelayCommand(GammaBrightness);
-                return _contrastAndBrightnessCommand;
+                if (_gammaOperatorCommand == null)
+                    _gammaOperatorCommand = new RelayCommand(GammaBrightness);
+                return _gammaOperatorCommand;
             }
         }
 
@@ -940,7 +943,7 @@ namespace Framework.ViewModel
             List<string> labels = new List<string>()
             {
                 "Gamma ",
-                
+
             };
 
             DialogWindow window = new DialogWindow(_mainVM, labels);
@@ -954,7 +957,7 @@ namespace Framework.ViewModel
             }
 
             double gamma = values[0];
-           
+
 
             if (gamma <= 0)
             {
@@ -975,8 +978,6 @@ namespace Framework.ViewModel
         }
 
         #endregion
-
-        #region Pointwise operations
 
         #endregion
 

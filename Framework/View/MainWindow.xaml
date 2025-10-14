@@ -203,8 +203,12 @@
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
 
-                <MenuItem Header="Contrast and Brightness"
+                <MenuItem Header="Contrast and Brightness - alpha and beta"
                           Command="{Binding MenuCommands.ContrastAndBrightnessCommand}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}" />
+
+				<MenuItem Header="Contrast and Brightness - gamma opearor"
+                          Command="{Binding MenuCommands.GammaOperatorCommand}"
                           CommandParameter="{Binding ElementName=processedImageCanvas}" />
 
             </MenuItem>
