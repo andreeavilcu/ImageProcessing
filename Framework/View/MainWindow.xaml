@@ -203,6 +203,10 @@
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
 
+                <MenuItem Header="Contrast and Brightness"
+                          Command="{Binding MenuCommands.ContrastAndBrightnessCommand}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}" />
+
             </MenuItem>
 
             <MenuItem Header="Thresholding"

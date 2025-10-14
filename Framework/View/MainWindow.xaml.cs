@@ -119,6 +119,7 @@ namespace Framework.View
         private void ImageMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             _mainVM.MenuCommands.VectorOfMousePosition.Clear();
+            MessageBox.Show("Selecția de puncte a fost ștearsă. Selectează din nou pentru crop.");
 
         }
 

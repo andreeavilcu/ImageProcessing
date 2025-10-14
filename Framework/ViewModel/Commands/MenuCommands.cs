@@ -248,8 +248,14 @@ namespace Framework.ViewModel
 
         private void ClearProcessedCanvas(object parameter)
         {
-            RemoveUiElements(parameter as Canvas);
+            var canvas = parameter as Canvas;
+            if (canvas == null)
+            {
+                //MessageBox.Show("Invalid canvas parameter.");
+                return;
+            }
 
+            RemoveUiElements(canvas);
             GrayProcessedImage = null;
             ColorProcessedImage = null;
             ProcessedImage = null;
@@ -634,7 +640,7 @@ namespace Framework.ViewModel
                 return;
             }
 
-            // Verifică dacă parameter este Canvas valid
+            
             var canvas = parameter as Canvas;
             if (canvas != null)
             {
@@ -642,8 +648,7 @@ namespace Framework.ViewModel
             }
             else
             {
-                // Poți ignora sau afișa un mesaj, dar nu apela ClearProcessedCanvas(null)
-                // MessageBox.Show("Canvas is null. Skipping canvas clearing.");
+                 //MessageBox.Show("Canvas is null. Skipping canvas clearing.");
             }
 
             try
@@ -765,9 +770,6 @@ namespace Framework.ViewModel
 
 
 
-
-
-
         #endregion
 
         #region Invert image
@@ -849,7 +851,133 @@ namespace Framework.ViewModel
 
         #endregion
 
+        #region Contrast and Brightness
+
+        private ICommand _contrastAndBrightnessCommand;
+
+        public ICommand ContrastAndBrightnessCommand
+        {
+            get
+            {
+                if (_contrastAndBrightnessCommand == null)
+                    _contrastAndBrightnessCommand = new RelayCommand(ContrastAndBrightness);
+                return _contrastAndBrightnessCommand;
+            }
+        }
+
+        private void ContrastAndBrightness(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter);
+
+            List<string> labels = new List<string>()
+            {
+                "Alpha (Contrast, > 0)",
+                "Beta (Brightness)"
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2)
+            {
+                return;
+            }
+
+            double alpha = values[0];
+            double beta = values[1];
+
+            if (alpha <= 0)
+            {
+                MessageBox.Show("Alpha must be a strictly positive value!", "Validation Error");
+                return;
+            }
+
+            if (ColorInitialImage != null)
+            {
+                ColorProcessedImage = PointwiseOperations.Brightness(ColorInitialImage, alpha, beta);
+                ProcessedImage = Convert(ColorProcessedImage);
+            }
+            else if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = PointwiseOperations.Brightness(GrayInitialImage, alpha, beta);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+        }
+
+        #endregion
+
+        #region Gamma
+        private ICommand _gammaBrightnessCommand;
+
+        public ICommand GammaBrightnessCommand
+        {
+            get
+            {
+                if (_gammaBrightnessCommand == null)
+                    _gammaBrightnessCommand = new RelayCommand(GammaBrightness);
+                return _contrastAndBrightnessCommand;
+            }
+        }
+
+        private void GammaBrightness(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter);
+
+            List<string> labels = new List<string>()
+            {
+                "Gamma ",
+                
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2)
+            {
+                return;
+            }
+
+            double gamma = values[0];
+           
+
+            if (gamma <= 0)
+            {
+                MessageBox.Show("Gamma must be a strictly positive value!", "Validation Error");
+                return;
+            }
+
+            if (ColorInitialImage != null)
+            {
+                ColorProcessedImage = PointwiseOperations.GammaOperator(ColorInitialImage, gamma);
+                ProcessedImage = Convert(ColorProcessedImage);
+            }
+            else if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = PointwiseOperations.GammaOperator(GrayInitialImage, gamma);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+        }
+
+        #endregion
+
         #region Pointwise operations
+
         #endregion
 
         #region Thresholding
