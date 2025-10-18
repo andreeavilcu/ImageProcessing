@@ -942,7 +942,7 @@ namespace Framework.ViewModel
 
             List<string> labels = new List<string>()
             {
-                "Gamma ",
+                "Gamma "
 
             };
 
@@ -951,7 +951,7 @@ namespace Framework.ViewModel
 
             List<double> values = window.GetValues();
 
-            if (values == null || values.Count != 2)
+            if (values == null || values.Count != 1)
             {
                 return;
             }
