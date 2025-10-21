@@ -216,6 +216,10 @@
             <MenuItem Header="Thresholding"
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
+                <MenuItem Header="Thresholding"
+                        Command="{Binding MenuCommands.MinErrThresholdCommand}"
+                    CommandParameter="{Binding ElementName=processedImageCanvas}" />
+
 
             </MenuItem>
 

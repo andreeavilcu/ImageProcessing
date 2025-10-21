@@ -981,8 +981,71 @@ namespace Framework.ViewModel
 
         #endregion
 
+
+
         #region Thresholding
+
+        #region MinErr Threshold
+        private ICommand _minErrThresholdCommand;
+        public ICommand MinErrThresholdCommand
+        {
+            get
+            {
+                if (_minErrThresholdCommand == null)
+                    _minErrThresholdCommand = new RelayCommand(MinErrThreshold);
+                return _minErrThresholdCommand;
+            }
+        }
+
+        #region Thresholding
+        private void MinErrThreshold(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+
+            IImage processedImage = null;
+
+            if (GrayInitialImage != null)
+            {
+                processedImage = Thresholding.MinErrThreshold2(GrayInitialImage);
+                GrayProcessedImage = processedImage as Image<Gray, byte>;
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else if (ColorInitialImage != null)
+            {
+                processedImage = Thresholding.MinErrThreshold2(ColorInitialImage);
+                GrayProcessedImage = processedImage as Image<Gray, byte>;
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else
+            {
+                MessageBox.Show("No image loaded for thresholding.");
+            }
+
+
+            if (processedImage is Image<Gray, byte> || processedImage is Image<Bgr, byte>)
+            {
+
+            }
+            else if (processedImage != null)
+            {
+                processedImage.Dispose();
+            }
+        }
         #endregion
+        #endregion
+        #endregion
+
+        #region Geometric transformations
+        #endregion
+
+
 
         #region Filters
         #endregion
@@ -1034,5 +1097,7 @@ namespace Framework.ViewModel
             ClearProcessedCanvas(canvases[1] as Canvas);
         }
         #endregion
+
+       
     }
 }

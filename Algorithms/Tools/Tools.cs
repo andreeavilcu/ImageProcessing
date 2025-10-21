@@ -52,13 +52,13 @@ namespace Algorithms.Tools
         }
         #endregion
 
-        #region Convert color image to grayscale image
+       
         public static Image<Gray, byte> Convert(Image<Bgr, byte> inputImage)
         {
             Image<Gray, byte> result = inputImage.Convert<Gray, byte>();
             return result;
         }
-        #endregion
+       
 
 
         #region Binary
