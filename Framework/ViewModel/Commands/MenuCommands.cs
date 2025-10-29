@@ -1048,6 +1048,47 @@ namespace Framework.ViewModel
 
 
         #region Filters
+        private ICommand _filter1Command;
+        public ICommand Filter1Command
+        {
+            get
+            {
+                if (_filter1Command == null)
+                    _filter1Command = new RelayCommand(Filter1);
+                return _filter1Command;
+            }
+        }
+
+
+        private void Filter1(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter);
+
+            float[,] filter = new float[,]
+            {
+                { 0.1f, 0.1f, 0.1f },
+                { 0.1f, 0.2f, 0.1f },
+                { 0.1f, 0.1f, 0.1f }
+            };
+
+           
+
+            if (ColorInitialImage != null)
+            {
+                return;
+            }
+            else if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.applyFilter(GrayInitialImage, filter);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+        }
         #endregion
 
         #region Morphological operations

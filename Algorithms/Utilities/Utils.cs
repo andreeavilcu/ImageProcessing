@@ -22,5 +22,16 @@ namespace Algorithms.Utilities
             return histogram;
         }
         #endregion
+
+        public static byte ClipPixel(double value)
+        {
+            if (value < 0)
+                value = 0;
+            else if (value > 255)
+                value = 255;
+
+            return (byte)(value + .5);
+        }
+
     }
 }
