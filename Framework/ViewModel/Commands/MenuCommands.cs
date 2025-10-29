@@ -915,6 +915,8 @@ namespace Framework.ViewModel
             }
         }
 
+
+
         #endregion
 
         #region Gamma
@@ -1089,6 +1091,76 @@ namespace Framework.ViewModel
                 ProcessedImage = Convert(GrayProcessedImage);
             }
         }
+
+        #region Separable Filter
+        private ICommand _separableFilterCommand;
+        public ICommand SeparableFilterCommand
+        {
+            get
+            {
+                if (_separableFilterCommand == null)
+                    _separableFilterCommand = new RelayCommand(SeparableFilter);
+                return _separableFilterCommand;
+            }
+        }
+
+        private void SeparableFilter(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            var canvas = parameter as Canvas;
+            if (canvas != null)
+            {
+                ClearProcessedCanvas(canvas);
+            }
+
+            
+            List<string> labels = new List<string>()
+            {
+                "v[0] (e.g., 0.25)",
+                "v[1] (e.g., 0.5)",
+                "v[2] (e.g., 0.25)"
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+            
+            if (values == null || values.Count != 3)
+            {
+                MessageBox.Show("Please enter exactly 3 numerical values for the filter vector v (e.g., 0.25, 0.5, 0.25).", "Input Error");
+                return;
+            }
+
+            float[] v = values.ConvertAll(x => (float)x).ToArray();
+
+            try
+            {
+                if (GrayInitialImage != null)
+                {
+                    GrayProcessedImage = Filters.ApplySeparableFilter(GrayInitialImage, v);
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                else if (ColorInitialImage != null)
+                {
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("No valid image to filter.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred during filtering: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
         #endregion
 
         #region Morphological operations
