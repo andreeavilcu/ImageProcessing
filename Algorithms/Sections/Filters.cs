@@ -1,11 +1,46 @@
 ﻿using Algorithms.Utilities;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using OpenTK;
 
 namespace Algorithms.Sections
 {
     public class Filters
     {
+        private static Image<Gray, byte> ReplicatePad(Image<Gray, byte> inputImage, int halfHeight, int halfWidth)
+        {
+            int H = inputImage.Height;
+            int W = inputImage.Width;
+            int paddedH = H + 2 * halfHeight;
+            int PaddedW = W + 2 * halfWidth;
+            Image<Gray, byte> paddedImage = new Image<Gray, byte>(PaddedW, paddedH);
+
+            for (int y = 0; y < H; y++)
+                for (int x = 0; x < W; x++)
+                    paddedImage.Data[y + halfHeight, x + halfWidth, 0] = inputImage.Data[y, x, 0];
+
+            for (int y = 0; y < H; y++)
+            {
+                for (int x = 0; x < halfWidth; x++)
+                    paddedImage.Data[y + halfHeight, x, 0] = inputImage.Data[y, 0, 0];
+
+                for (int x = 0; x < halfWidth; x++)
+                    paddedImage.Data[y + halfHeight, W + halfWidth + x, 0] = inputImage.Data[y, W - 1, 0];
+            }
+
+            for (int x = 0; x < PaddedW; x++)
+            {
+
+                for (int y = 0; y < halfHeight; y++)
+                    paddedImage.Data[y, x, 0] = paddedImage.Data[halfHeight, x, 0];
+
+                for (int y = 0; y < halfHeight; y++)
+                    paddedImage.Data[H + halfHeight + y, x, 0] = paddedImage.Data[H + halfHeight - 1, x, 0];
+            }
+
+            return paddedImage;
+
+        }
         #region Filtering
         public static Image<Gray, byte> applyFilter (Image<Gray, byte> image, float[,] filter)
         {
@@ -13,24 +48,28 @@ namespace Algorithms.Sections
 
             int h = filter.GetLength(0);
             int w = filter.GetLength(1);
+            int halfH = h / 2;
+            int halfW = w / 2;
 
-            for(int y =  h/2; y<image.Height - h/2 - 1; ++y)
+            using (Image<Gray, byte> paddedImage = ReplicatePad(image, halfH, halfW))
             {
-                for(int x = w/2; x < image.Width -  w/2 - 1; ++x)
+                for (int y = h / 2; y < image.Height - h / 2 - 1; ++y)
                 {
-                    double sum = 0;
-                    for (int i = -h/2; i<= h/2; i++)
+                    for (int x = w / 2; x < image.Width - w / 2 - 1; ++x)
                     {
-                        for(int j =  -w/2; j<= w/2; j++)
+                        double sum = 0;
+                        for (int i = -h / 2; i <= h / 2; i++)
                         {
-                            sum += filter[i + h / 2, j + w / 2] * image.Data[y + i, x + j, 0];
+                            for (int j = -w / 2; j <= w / 2; j++)
+                            {
+                                sum += filter[i + h / 2, j + w / 2] * image.Data[y + i, x + j, 0];
+                            }
                         }
-                    }
 
-                    result.Data[y, x, 0] = Utilities.Utils.ClipPixel(sum);
+                        result.Data[y, x, 0] = Utilities.Utils.ClipPixel(sum);
+                    }
                 }
             }
-
             return result;
         }
 
