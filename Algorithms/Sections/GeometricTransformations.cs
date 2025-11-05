@@ -1,6 +1,7 @@
-﻿namespace Algorithms.Sections
+﻿
+namespace Algorithms.Sections
 {
     public class GeometricTransformations
-    {
+    { 
     }
 }

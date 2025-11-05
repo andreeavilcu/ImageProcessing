@@ -241,11 +241,19 @@
                 <MenuItem Header="Low-pass"
                           Foreground="#1E1E1E">
 
-                </MenuItem>
-                <MenuItem Header="High-pass"
-                          Foreground="#1E1E1E">
+                    <MenuItem Header="Median Filter"
+                                Foreground="#1E1E1E"
+                                Command="{Binding Path=MenuCommands.MedianFilterCommand}"
+                                CommandParameter="{Binding ElementName=processedImageCanvas}"/>
 
                 </MenuItem>
+
+                <MenuItem Header="High-pass"
+                          Foreground="#1E1E1E">
+                    
+                </MenuItem>
+
+                
             </MenuItem>
 
             <MenuItem Header="Morphological operations"

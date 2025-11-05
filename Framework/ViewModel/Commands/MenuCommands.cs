@@ -1161,6 +1161,79 @@ namespace Framework.ViewModel
             }
         }
         #endregion
+
+        #region Median Filter
+        private ICommand _medianFilterCommand;
+        public ICommand MedianFilterCommand
+        {
+            get
+            {
+                if (_medianFilterCommand == null)
+                    _medianFilterCommand = new RelayCommand(MedianFilter);
+                return _medianFilterCommand;
+            }
+        }
+
+        private void MedianFilter(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            var canvas = parameter as Canvas;
+            if (canvas != null)
+            {
+                ClearProcessedCanvas(canvas);
+            }
+
+
+            List<string> labels = new List<string>()
+            {
+                "v[0] (e.g. 5)"
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+
+            if (values == null || values.Count != 1)
+            {
+                MessageBox.Show("Please enter the kernel size.", "Input Error");
+                return;
+            }
+
+            int size = (int)values[0];
+
+            try
+            {
+                if (GrayInitialImage != null)
+                {
+                    GrayProcessedImage = Filters.MedianFiltering(GrayInitialImage, size);
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                else if (ColorInitialImage != null)
+                {
+                    MessageBox.Show("You must load a Grayscale Image");
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("No valid image to filter.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred during filtering: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+
+
+
         #endregion
 
         #region Morphological operations

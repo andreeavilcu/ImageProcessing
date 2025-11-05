@@ -2,6 +2,11 @@
 using Emgu.CV;
 using Emgu.CV.Structure;
 using OpenTK;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Security.Policy;
+using System.Threading.Tasks;
 
 namespace Algorithms.Sections
 {
@@ -72,8 +77,6 @@ namespace Algorithms.Sections
             }
             return result;
         }
-
-
         public static Image<Gray, byte> ApplySeparableFilter(Image<Gray, byte> inputImage, float[] v)
         {
             if (inputImage == null || v == null)
@@ -182,6 +185,70 @@ namespace Algorithms.Sections
             paddedVertical.Dispose();
 
             return finalImage;
+        }
+        
+       private static byte Median(float[] h , int l)
+        {
+            int k = 0;
+            float s = 0;
+            int n = (l * l) / 2;
+            
+            while(k <= 255 && s + h[k]<=n)
+            {
+                s += h[k];
+                k += 1;
+
+            }
+
+            return (byte)k;
+        }
+
+
+        public static Image<Gray, byte> MedianFiltering(Image<Gray, byte> inputImage, int l)
+        {
+            Image<Gray, byte> result = new Image<Gray, byte>(inputImage.Size);
+
+            using (Image<Gray, byte> paddedImage = ReplicatePad(inputImage, l/2 , l/ 2))
+            {
+                float[] H = new float[256];
+                int r = l / 2;
+
+                for (int y = r; y < paddedImage.Height - r - 1; y++)
+                {
+                    for (int x = r; x < paddedImage.Width - r - 1; x++)
+                    {
+                        if (x == r)
+                        {
+                            for(int m = 0; m < 256; m++)
+                            {
+                                H[m] = 0;
+                            }
+
+                            for (int i = -r; i <= r; i++)
+                            {
+                                for (int j = -r; j <= r; j++)
+                                    H[paddedImage.Data[y + i, x + j, 0]]++;
+                            }
+                        }
+                        else
+                        {
+                            for (int k = -r; k <= r; k++)
+                            {
+                                H[paddedImage.Data[y + k, x - r - 1, 0]]--;
+                                H[paddedImage.Data[y + k, x + r, 0]]++;
+                            }
+                        }
+                        result.Data[y - r, x - r, 0] = Utils.ClipPixel(result.Data[y, x, 0]);
+                        result.Data[y - r, x - r  , 0] = (byte)Median(H, l);
+
+                    }
+                }
+
+                return result;
+
+                
+            }   
+            
         }
         #endregion
     }
