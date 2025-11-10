@@ -1191,7 +1191,7 @@ namespace Framework.ViewModel
 
             List<string> labels = new List<string>()
             {
-                "v[0] (e.g. 5)"
+                "(Kernel size: odd number)"
             };
 
             DialogWindow window = new DialogWindow(_mainVM, labels);
@@ -1206,6 +1206,11 @@ namespace Framework.ViewModel
             }
 
             int size = (int)values[0];
+
+            if(size % 2 == 0)
+            {
+                MessageBox.Show("The dimension of the kernel must be an odd number.");
+            }
 
             try
             {

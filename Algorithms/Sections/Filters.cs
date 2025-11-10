@@ -202,9 +202,7 @@ namespace Algorithms.Sections
 
             return (byte)k;
         }
-
-
-        public static Image<Gray, byte> MedianFiltering(Image<Gray, byte> inputImage, int l)
+       public static Image<Gray, byte> MedianFiltering(Image<Gray, byte> inputImage, int l)
         {
             Image<Gray, byte> result = new Image<Gray, byte>(inputImage.Size);
 
@@ -250,6 +248,8 @@ namespace Algorithms.Sections
             }   
             
         }
-        #endregion
+
+       
+       #endregion
     }
 }
