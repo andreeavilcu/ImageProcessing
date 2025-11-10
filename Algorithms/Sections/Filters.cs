@@ -213,9 +213,9 @@ namespace Algorithms.Sections
                 float[] H = new float[256];
                 int r = l / 2;
 
-                for (int y = r; y < paddedImage.Height - r - 1; y++)
+                for (int y = r; y <= paddedImage.Height - r - 1; y++)
                 {
-                    for (int x = r; x < paddedImage.Width - r - 1; x++)
+                    for (int x = r; x <= paddedImage.Width - r - 1; x++)
                     {
                         if (x == r)
                         {
@@ -238,8 +238,8 @@ namespace Algorithms.Sections
                                 H[paddedImage.Data[y + k, x + r, 0]]++;
                             }
                         }
-                        result.Data[y - r, x - r, 0] = Utils.ClipPixel(result.Data[y, x, 0]);
-                        result.Data[y - r, x - r  , 0] = (byte)Median(H, l);
+                        
+                        result.Data[y - r, x - r  , 0] = Median(H, l);
 
                     }
                 }
