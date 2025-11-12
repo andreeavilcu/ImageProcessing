@@ -250,7 +250,12 @@
 
                 <MenuItem Header="High-pass"
                           Foreground="#1E1E1E">
-                    
+
+                    <MenuItem Header="Directional Sobel Filter"
+                            Foreground="#1E1E1E"
+                            Command="{Binding Path=MenuCommands.SobelFilterCommand}"
+                            CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+
                 </MenuItem>
 
                 

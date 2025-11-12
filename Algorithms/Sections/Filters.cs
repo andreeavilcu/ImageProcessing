@@ -249,7 +249,126 @@ namespace Algorithms.Sections
             
         }
 
-       
-       #endregion
+        public static Image<Gray, float> ApplyFloatFilter(Image<Gray, byte> image, float[,] filter)
+        {
+            Image<Gray, float> result = new Image<Gray, float>(image.Size);
+
+            int h = filter.GetLength(0);
+            int w = filter.GetLength(1);
+            int halfH = h / 2;
+            int halfW = w / 2;
+
+            using (Image<Gray, byte> paddedByteImage = ReplicatePad(image, halfH, halfW))
+            {
+                for (int y = 0; y < image.Height; ++y)
+                {
+                    for (int x = 0; x < image.Width; ++x)
+                    {
+                        double sum = 0;
+                        for (int i = -halfH; i <= halfH; i++)
+                        {
+                            for (int j = -halfW; j <= halfW; j++)
+                            {
+                               
+                                sum += filter[i + halfH, j + halfW] * paddedByteImage.Data[y + halfH + i, x + halfW + j, 0];
+                            }
+                        }
+
+                        result.Data[y, x, 0] = (float)sum;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static Image<Gray, byte> ApplySobelDirectional(Image<Gray, byte> inputImage, int threshold, int desiredAngleDegrees, int angleTolerance)
+        {
+            float[,] sobelX = new float[,]
+            {
+                { -1f, 0f, 1f },
+                { -2f, 0f, 2f },
+                { -1f, 0f, 1f }
+            };
+
+            float[,] sobelY = new float[,]
+            {
+                { -1f, -2f, -1f },
+                { 0f, 0f, 0f },
+                { 1f, 2f, 1f }
+            };
+
+
+            double angleToleranceRadians = angleTolerance * (Math.PI / 180.0);
+            double desiredAngleRadians = desiredAngleDegrees * (Math.PI / 180.0);
+
+           
+            while (desiredAngleRadians > Math.PI / 2.0)
+            {
+                desiredAngleRadians -= Math.PI;
+            }
+            while (desiredAngleRadians < -Math.PI / 2.0)
+            {
+                desiredAngleRadians += Math.PI;
+            }
+
+            using (Image<Gray, float> fx = ApplyFloatFilter(inputImage, sobelX))
+            using (Image<Gray, float> fy = ApplyFloatFilter(inputImage, sobelY))
+            {
+                Image<Gray, byte> resultImage = new Image<Gray, byte>(inputImage.Size);
+
+                for (int y = 0; y < inputImage.Height; y++)
+                {
+                    for (int x = 0; x < inputImage.Width; x++)
+                    {
+                        float gx = fx.Data[y, x, 0];
+                        float gy = fy.Data[y, x, 0];
+
+                        
+                        double magnitude = Math.Sqrt(gx * gx + gy * gy);
+
+                        if (magnitude > threshold)
+                        {
+                            
+                            double angle;
+
+                            if (Math.Abs(gx) < 1e-6) 
+                            {
+                                if (gy > 0)
+                                    angle = Math.PI / 2.0; 
+                                else if (gy < 0)
+                                    angle = -Math.PI / 2.0; 
+                                else
+                                    angle = 0.0; 
+                            }
+                            else
+                            {
+                                angle = Math.Atan(gy / gx); 
+                            }
+
+                            
+                            double diff = angle - desiredAngleRadians;
+
+                            if (Math.Abs(diff) <= angleToleranceRadians)
+                            {
+                              
+                                resultImage.Data[y, x, 0] = 255; 
+                            }
+                            else
+                            {
+                                
+                                resultImage.Data[y, x, 0] = 0; 
+                            }
+                        }
+                        else
+                        {
+                            
+                            resultImage.Data[y, x, 0] = 0; 
+                        }
+                    }
+                }
+                return resultImage;
+            }
+        }
+        #endregion
     }
 }

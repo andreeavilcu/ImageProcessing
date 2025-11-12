@@ -1236,6 +1236,82 @@ namespace Framework.ViewModel
         }
         #endregion
 
+        #region
+
+        private ICommand _sobelFilterCommand;
+        public ICommand SobelFilterCommand
+        {
+            get
+            {
+                if (_sobelFilterCommand == null)
+                    _sobelFilterCommand = new RelayCommand(SobelFilter);
+                return _sobelFilterCommand;
+            }
+        }
+
+        private void SobelFilter(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            var canvas = parameter as Canvas;
+            if (canvas != null)
+            {
+                ClearProcessedCanvas(canvas);
+            }
+
+
+            List<string> labels = new List<string>()
+            {
+                "threshold: ",
+                "desired angle degrees: ",
+                "angle tolerance: ",
+
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+
+            if (values == null || values.Count != 3)
+            {
+                MessageBox.Show("Please enter exactly 3 numerical values: threshold, desired angle degrees, angle tolerance!");
+                return;
+            }
+
+            
+            int threshold = (int)values[0];
+            int desiredAngleDegrees = (int)values[1];
+            int angleTolerance =(int)values[2];
+
+            try
+            {
+                if (GrayInitialImage != null)
+                {
+                    GrayProcessedImage = Filters.ApplySobelDirectional(GrayInitialImage, threshold, desiredAngleDegrees, angleTolerance);
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                else if (ColorInitialImage != null)
+                {
+                    MessageBox.Show("You must load a Grayscale Image!");
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("No valid image to filter.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred during filtering: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
 
 
 
