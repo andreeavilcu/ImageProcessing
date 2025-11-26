@@ -1318,6 +1318,104 @@ namespace Framework.ViewModel
         #endregion
 
         #region Morphological operations
+
+        private void ApplyMorphologicalOperation(Func<Image<Gray, byte>, int, int, int, int, Image<Gray, byte>> operation)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            if (GrayInitialImage == null && ColorInitialImage != null)
+            {
+                MessageBox.Show("Please convert to grayscale first or load a grayscale image.");
+                return;
+            }
+
+            List<string> labels = new List<string>()
+            {
+                "Mask Height (h)",
+                "Mask Width (w)",
+                "Threshold (T)",
+                "Object Type (1=White, 0=Black)"
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+            // Validare simplă
+            if (values == null || values.Count != 4) return;
+
+            int h = (int)values[0];
+            int w = (int)values[1];
+            int T = (int)values[2];
+            int type = (int)values[3];
+
+            if (h <= 0 || w <= 0)
+            {
+                MessageBox.Show("Mask dimensions must be positive.");
+                return;
+            }
+
+            try
+            {
+                GrayProcessedImage = operation(GrayInitialImage, h, w, T, type);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+
+        private ICommand _dilateCommand;
+        public ICommand DilateCommand
+        {
+            get
+            {
+                if (_dilateCommand == null)
+                    _dilateCommand = new RelayCommand(param => ApplyMorphologicalOperation(MorphologicalOperations.Dilate));
+                return _dilateCommand;
+            }
+        }
+
+        private ICommand _erodeCommand;
+        public ICommand ErodeCommand
+        {
+            get
+            {
+                if (_erodeCommand == null)
+                    _erodeCommand = new RelayCommand(param => ApplyMorphologicalOperation(MorphologicalOperations.Erode));
+                return _erodeCommand;
+            }
+        }
+
+
+        private ICommand _openingCommand;
+        public ICommand OpeningCommand
+        {
+            get
+            {
+                if (_openingCommand == null)
+                    _openingCommand = new RelayCommand(param => ApplyMorphologicalOperation(MorphologicalOperations.Opening));
+                return _openingCommand;
+            }
+        }
+
+
+        private ICommand _closingCommand;
+        public ICommand ClosingCommand
+        {
+            get
+            {
+                if (_closingCommand == null)
+                    _closingCommand = new RelayCommand(param => ApplyMorphologicalOperation(MorphologicalOperations.Closing));
+                return _closingCommand;
+            }
+        }
         #endregion
 
         #region Geometric transformations

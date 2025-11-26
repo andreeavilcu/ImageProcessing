@@ -12,7 +12,7 @@ namespace Algorithms.Sections
 {
     public class Filters
     {
-        private static Image<Gray, byte> ReplicatePad(Image<Gray, byte> inputImage, int halfHeight, int halfWidth)
+        public static Image<Gray, byte> ReplicatePad(Image<Gray, byte> inputImage, int halfHeight, int halfWidth)
         {
             int H = inputImage.Height;
             int W = inputImage.Width;
