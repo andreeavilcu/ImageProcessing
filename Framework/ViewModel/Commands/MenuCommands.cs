@@ -1345,7 +1345,7 @@ namespace Framework.ViewModel
             window.ShowDialog();
             List<double> values = window.GetValues();
 
-            // Validare simplă
+            
             if (values == null || values.Count != 4) return;
 
             int h = (int)values[0];
@@ -1369,6 +1369,7 @@ namespace Framework.ViewModel
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
+
 
 
         private ICommand _dilateCommand;
@@ -1416,6 +1417,105 @@ namespace Framework.ViewModel
                 return _closingCommand;
             }
         }
+        #endregion
+
+        #region
+        private void ApplyMorphologicalOperationColor(Func<Image<Bgr, byte>, int, int, Image<Bgr, byte>> operation)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            if (ColorInitialImage == null && GrayInitialImage != null)
+            {
+                MessageBox.Show("Please convert to color first or load a color image.");
+                return;
+            }
+
+            List<string> labels = new List<string>()
+            {
+                "Mask Height (h)",
+                "Mask Width (w)",
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+
+            if (values == null || values.Count != 2) return;
+
+            int h = (int)values[0];
+            int w = (int)values[1];
+           
+
+            if (h <= 0 || w <= 0)
+            {
+                MessageBox.Show("Mask dimensions must be positive.");
+                return;
+            }
+
+            try
+            {
+                ColorProcessedImage = operation(ColorInitialImage, h, w);
+                ProcessedImage = Convert(ColorProcessedImage);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+
+        private ICommand _dilateColorCommand;
+        public ICommand DilateColorCommand
+        {
+            get
+            {
+                if (_dilateColorCommand == null)
+                    _dilateColorCommand = new RelayCommand(param => ApplyMorphologicalOperationColor(MorphologicalOperations.DilateColor));
+                return _dilateColorCommand;
+            }
+        }
+
+        private ICommand _erodeColorCommand;
+        public ICommand ErodeColorCommand
+        {
+            get
+            {
+                if (_erodeColorCommand == null)
+                    _erodeColorCommand = new RelayCommand(param => ApplyMorphologicalOperationColor(MorphologicalOperations.ErodeColor));
+                return _erodeColorCommand;
+            }
+        }
+
+
+        private ICommand _openingColorCommand;
+        public ICommand OpeningColorCommand
+        {
+            get
+            {
+                if (_openingColorCommand == null)
+                    _openingColorCommand = new RelayCommand(param => ApplyMorphologicalOperationColor(MorphologicalOperations.OpeningColor));
+                return _openingColorCommand;
+            }
+        }
+
+
+        private ICommand _closingColorCommand;
+        public ICommand ClosingColorCommand
+        {
+            get
+            {
+                if (_closingColorCommand == null)
+                    _closingColorCommand = new RelayCommand(param => ApplyMorphologicalOperationColor(MorphologicalOperations.ClosingColor));
+                return _closingColorCommand;
+            }
+        }
+
         #endregion
 
         #region Geometric transformations

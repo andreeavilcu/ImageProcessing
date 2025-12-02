@@ -284,6 +284,27 @@
                           Foreground="#1E1E1E"
                           Command="{Binding Path=MenuCommands.ClosingCommand}"
                           CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                <Separator/>
+
+                <MenuItem Header="Dilatation Color"
+          Foreground="#1E1E1E"
+          Command="{Binding Path=MenuCommands.DilateColorCommand}"
+          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+
+                <MenuItem Header="Erosion Color"
+          Foreground="#1E1E1E"
+          Command="{Binding Path=MenuCommands.ErodeColorCommand}"
+          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+
+                <MenuItem Header="Opening Color"
+          Foreground="#1E1E1E"
+          Command="{Binding Path=MenuCommands.OpeningColorCommand}"
+          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+
+                <MenuItem Header="Closing Color"
+          Foreground="#1E1E1E"
+          Command="{Binding Path=MenuCommands.ClosingColorCommand}"
+          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
 
             </MenuItem>
 
