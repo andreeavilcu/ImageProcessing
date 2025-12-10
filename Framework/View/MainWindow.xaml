@@ -312,6 +312,16 @@
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
 
+                <MenuItem Header="Scale - Bilinear Interpolation"
+                          Foreground="#1E1E1E"
+                          Command="{Binding Path=MenuCommands.ScaleBilinearCommand}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+
+                <MenuItem Header="Scale - Bicubic Interpolation"
+                          Foreground="#1E1E1E"
+                          Command="{Binding Path=MenuCommands.ScaleBicubicCommand}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+
             </MenuItem>
 
             <MenuItem Header="Segmentation"

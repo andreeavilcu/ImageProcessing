@@ -1519,9 +1519,122 @@ namespace Framework.ViewModel
         #endregion
 
         #region Geometric transformations
+
+
         #endregion
 
         #region Segmentation
+        #endregion
+        #region Scale Bilinear
+        private ICommand _scaleBilinearCommand;
+        public ICommand ScaleBilinearCommand
+        {
+            get
+            {
+                if (_scaleBilinearCommand == null)
+                    _scaleBilinearCommand = new RelayCommand(ScaleBilinear);
+                return _scaleBilinearCommand;
+            }
+        }
+
+        private void ScaleBilinear(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            
+            List<string> labels = new List<string>()
+            {
+                "Scale Factor Sx (e.g., 1.5)",
+                "Scale Factor Sy (e.g., 1.5)"
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2) return;
+
+            double sx = values[0];
+            double sy = values[1];
+
+            if (sx <= 0 || sy <= 0)
+            {
+                MessageBox.Show("Factors must be strictly positive.");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = GeometricTransformations.ScaleBilinear(GrayInitialImage, sx, sy);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            
+            else if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Please load grayscale image");
+            }
+        }
+        #endregion
+
+        #region Scale Bicubic
+        private ICommand _scaleBicubicCommand;
+        public ICommand ScaleBicubicCommand
+        {
+            get
+            {
+                if (_scaleBicubicCommand == null)
+                    _scaleBicubicCommand = new RelayCommand(ScaleBicubic);
+                return _scaleBicubicCommand;
+            }
+        }
+
+        private void ScaleBicubic(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            List<string> labels = new List<string>()
+            {
+                "Scale Factor Sx",
+                "Scale Factor Sy"
+            };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2) return;
+
+            double sx = values[0];
+            double sy = values[1];
+
+            if (sx <= 0 || sy <= 0)
+            {
+                MessageBox.Show("Factors must be strictly positive.");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = GeometricTransformations.ScaleBicubic(GrayInitialImage, sx, sy);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Please load a grayscale image.");
+            }
+        }
         #endregion
 
         #region Use processed image as initial image
