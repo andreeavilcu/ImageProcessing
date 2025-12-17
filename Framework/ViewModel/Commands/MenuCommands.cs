@@ -20,6 +20,7 @@ using Algorithms.Tools;
 using Algorithms.Utilities;
 using System;
 using System.Drawing;
+using Framework.Utilities;
 
 namespace Framework.ViewModel
 {
@@ -1633,6 +1634,80 @@ namespace Framework.ViewModel
             else if (ColorInitialImage != null)
             {
                 MessageBox.Show("Please load a grayscale image.");
+            }
+        }
+        #endregion
+
+        #region Hough Transform
+        private System.Windows.Input.ICommand _houghTransformCommand;
+        
+        public System.Windows.Input.ICommand HoughTransformCommand
+        {
+            get
+            {
+                if (_houghTransformCommand == null)
+                    _houghTransformCommand = new RelayCommand(HoughTransform);
+                return _houghTransformCommand;
+            }
+        }
+
+        private void HoughTransform(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            if (GrayInitialImage == null && ColorInitialImage != null)
+            {
+                MessageBox.Show("Please use a grayscale image.");
+                return;
+            }
+
+            var canvases = (object[])parameter;
+            Canvas initialCanvas = canvases[0] as Canvas;
+            Canvas processedCanvas = canvases[1] as Canvas;
+            ClearProcessedCanvas(processedCanvas);
+
+            List<string> labels = new List<string>() { "Binarization Threshold (0-255)" };
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 1) return;
+            int threshold = (int)values[0];
+
+            try
+            {
+                var result = Segmentation.HoughTransform(GrayInitialImage, threshold);
+
+                GrayProcessedImage = result.accumulatorImage;
+                ProcessedImage = Convert(GrayProcessedImage);
+
+                foreach (var line in result.lines)
+                {
+                    float rho = line.rho;
+                    float thetaDeg = line.theta;
+                    double thetaRad = thetaDeg * Math.PI / 180.0;
+
+                    double a = Math.Cos(thetaRad);
+                    double b = Math.Sin(thetaRad);
+                    double x0 = a * rho;
+                    double y0 = b * rho;
+
+                    System.Windows.Point pt1, pt2;
+                    double d = 2000;
+
+                    pt1 = new System.Windows.Point(x0 + d * (-b), y0 + d * (a));
+                    pt2 = new System.Windows.Point(x0 - d * (-b), y0 - d * (a));
+
+                    DrawingHelper.DrawLine(initialCanvas, pt1, pt2, 1, System.Windows.Media.Brushes.Red, _mainVM.ScaleValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
             }
         }
         #endregion

@@ -327,7 +327,16 @@
             <MenuItem Header="Segmentation"
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
-
+                <MenuItem Header="Hough Transform"
+                          Foreground="#1E1E1E"
+                          Command="{Binding Path=MenuCommands.HoughTransformCommand}">
+                    <MenuItem.CommandParameter>
+                        <MultiBinding Converter="{StaticResource arrayMultiValueConverter}">
+                            <Binding ElementName="initialImageCanvas"/>
+                            <Binding ElementName="processedImageCanvas"/>
+                        </MultiBinding>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Use processed image as initial image" 
